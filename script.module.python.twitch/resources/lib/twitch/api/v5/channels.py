@@ -5,6 +5,7 @@ from twitch import keys, methods
 from twitch.api.parameters import Boolean, BroadcastType, Cursor, Direction, Duration, Language, VideoSort
 from twitch.queries import V5Query as Qry
 from twitch.queries import query
+from twitch.logging import log
 
 
 # required scope: channel_read
@@ -123,16 +124,28 @@ def reset_stream_key(channel_id):
 
 
 # required scope: channel_editor
+# deprecated
 @query
 def get_community(channel_id):
+    log.deprecated_query('channels.get_community', 'channels.get_communities')
     q = Qry('channels/{channel_id}/community')
     q.add_urlkw(keys.CHANNEL_ID, channel_id)
     return q
 
 
+# required scope: none
+@query
+def get_communities(channel_id):
+    q = Qry('channels/{channel_id}/communities', use_token=False)
+    q.add_urlkw(keys.CHANNEL_ID, channel_id)
+    return q
+
+
 # required scope: channel_editor
+# deprecated
 @query
 def set_community(channel_id, community_id):
+    log.deprecated_query('channels.set_community', 'channels.set_communities')
     q = Qry('channels/{channel_id}/community/{community_id}', method=methods.PUT)
     q.add_urlkw(keys.CHANNEL_ID, channel_id)
     q.add_urlkw(keys.COMMUNITY_ID, community_id)
@@ -140,6 +153,16 @@ def set_community(channel_id, community_id):
 
 
 # required scope: channel_editor
+@query
+def set_communities(channel_id, community_ids):
+    q = Qry('channels/{channel_id}/communities', method=methods.PUT)
+    q.add_urlkw(keys.CHANNEL_ID, channel_id)
+    q.add_data(keys.COMMUNITY_IDS, community_ids)
+    return q
+
+
+# required scope: channel_editor
+# deprecated action: act on single community, new action: act on all communities
 @query
 def delete_from_community(channel_id):
     q = Qry('channels/{channel_id}/community', method=methods.DELETE)
